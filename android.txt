@@ -1,0 +1,3 @@
+title=AikiSteps
+author=Bertrand Bine - 2018
+orientation=portrait
