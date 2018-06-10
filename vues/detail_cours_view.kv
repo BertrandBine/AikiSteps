@@ -1,0 +1,203 @@
+#: kivy 1.9.1
+
+<Detail_Cours_View>:
+    BoxLayout:
+        orientation: 'vertical'
+        id: w00
+        BoxLayout:
+            size_hint: (1, .15)
+            LeftButton:
+                size_hint: (.2,1)
+                on_release: car00.load_previous()
+            Label:
+                text: 'Aïki Steps'
+                font_size: '18sp'
+                bold: True
+                size_hint: (.6, 1)
+                color: (0, 1, 1, 1)
+            RightButton:
+                size_hint: (.2, 1)
+                on_release: car00.load_next()
+                
+            
+        Carousel:
+            id: car00
+            orientation:'horizonal'
+            BoxLayout:
+                orientation: 'vertical'
+                GridLayout:
+                    cols: 2
+                    size_hint: (1, .6)
+                    Label:
+                        text: 'Thématique'
+                        halign: 'left'
+                        valign: 'middle'
+                        text_size: self.size
+                    LFontInput:
+                        thefield: "THEMATIQUE"
+                        write_tab: 0
+                    Label:
+                        text: 'Date'
+                        halign: 'left'
+                        valign: 'middle'
+                        text_size: self.size
+                    LFontInput:
+                        thefield: "DATE"
+                        write_tab: 0
+                        input_type: 'datetime'
+                    Label:
+                        text: 'Objectif Général'
+                        halign: 'left'
+                        valign: 'middle'
+                        text_size: self.size
+                    LFontInput:
+                        thefield: "OBJ_GEN"
+                        write_tab: 0
+                    Label:
+                        text: 'Durée'
+                        halign: 'left'
+                        valign: 'middle'
+                        text_size: self.size
+                    DurTot:
+                        thefield: "DUREE_GEN"
+                        text: '0 mn.'
+                    Label:
+                        text: 'Lieu'
+                        halign: 'left'
+                        valign: 'middle'
+                        text_size: self.size
+                    LFontInput:
+                        thefield: "LIEU"
+                        text: 'Kunheim'
+                        write_tab: 0
+                GridLayout:
+                    cols: 2
+                    size_hint: (1, .4)
+                    BoxLayout:
+                        orientation: 'vertical'
+                        ToggleButton:
+                            height: 40
+                            id: enfant
+                            text: 'Enfants'
+                            group: 'PUBLIC1'
+                            thefield: 'PUBLIC1'
+                        ToggleButton:
+                            id: ado
+                            text: 'Adolescents.'
+                            group: 'PUBLIC1'
+                            thefield: 'PUBLIC1'
+                        ToggleButton:
+                            id: adulte
+                            text: 'Adultes'
+                            group: 'PUBLIC1'
+                            thefield: 'PUBLIC1'
+                        ToggleButton:
+                            id: mixage
+                            text: 'Mixte'
+                            group: 'PUBLIC1'
+                            thefield: 'PUBLIC1'
+                    BoxLayout:
+                        orientation: 'vertical'
+                        ToggleButton:
+                            id: debutant
+                            text: 'Débutants'
+                            group: 'PUBLIC2'
+                            thefield: 'PUBLIC12'
+                        ToggleButton:
+                            id: avance
+                            text: 'Avancés'
+                            group: 'PUBLIC2'
+                            thefield: 'PUBLIC2'
+                        ToggleButton:
+                            id: yudansha
+                            text: 'Yudansha'
+                            group: 'PUBLIC2'
+                            thefield: 'PUBLIC2'
+                        ToggleButton:
+                            id: mixniv
+                            text: 'Mixte'
+                            group: 'PUBLIC2'
+                            thefield: 'PUBLIC2'
+                    
+                    
+            BoxLayout:
+                orientation: 'vertical'
+    
+                BoxLayout:
+                    size_hint:(1, .15)
+                    orientation: 'horizontal'
+                    LeftButton:
+                        size_hint: (.2, 1)
+                        on_release: car01.load_previous()
+                    Label: 
+                        text: 'Description'
+                        size_hint:(.4, 1)
+                    Label:
+                        size_hint:(.2, 1)
+                        text: 'P '+str(car01.index+1) + '/' + str(len(car01.slides))
+                        halign: 'left'
+                        valign: 'middle'
+                        text_size: self.size
+                    RightButton:
+                        size_hint: (.2, 1)
+                        on_release: car01.load_next()
+
+                Carousel:
+                    id: car01
+                    orientation: 'horizontal'
+                    scroll_distance: '80sp'
+                    CarouselSlide:
+                    
+                BoxLayout:
+                    orientation: 'horizontal'
+                    size_hint: (1, .30)
+                    AddButton:
+                        id: add_button
+                        text: 'Ajouter une page'
+                        on_release: self.add_page(car01)
+                    DelButton:
+                        id: del_button
+                        text: 'Supprimer la page'
+                        on_release: car01.remove_widget(car01.current_slide)
+            
+            BoxLayout:
+                orientation: 'vertical'
+                BoxLayout:
+                    size_hint_y: .2
+                    orientation: 'vertical'
+                    Label:
+                        text: 'Resumé'
+                    BoxLayout:
+                        orientation: 'horizontal'
+                        Button:
+                            text: 'Copier et RAZ'
+                            on_release: app.select_text(summerized)
+                        Button:
+                            text: 'Actualiser'
+                            on_release: summerized.text=app.summerize()
+                ScrollView:
+                    id: sv
+                    TextInput:
+                        id: summerized
+                        readonly: True
+                        foreground_color: (0, 0, 1, 1)
+                        size_hint: (1, None)
+                        allow_strecht: True
+                        height: max(self.minimum_height, sv.height)
+                        
+                BoxLayout:
+                    size_hint_y: .2
+                    Button:
+                        text: 'Sauvegarder cours'
+                    Button:
+                        text: 'Charger un cours'
+
+<RightButton@Button>:
+    size: (50, 50)
+    background_color: (1, 1, 1, 1)
+    text: '->'
+
+<LeftButton@Button>:
+    size: (50, 50)
+    background_color: (1, 1, 1, 1)
+    text: '<-'
