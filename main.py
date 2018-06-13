@@ -1,6 +1,7 @@
 #qpy:kivy
 #-*- coding: utf-8 -*-
 
+
 import kivy
 kivy.require('1.10.0')
 from kivy.app import App
@@ -12,9 +13,9 @@ class AikiSteps2App(App):
     ##classe pour tester kivy
     def build(self):
         self.gestion_cours=Gestion_Cours()
-        return Detail_Cours_View()
+        self.DCV=Detail_Cours_View()
+        return self.DCV
         
         
 if __name__ == '__main__': 
     AikiSteps2App().run()
-

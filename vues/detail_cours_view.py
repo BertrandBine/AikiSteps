@@ -18,105 +18,24 @@ from kivy.core.window import Window
 import os
 import sqlite3 as sq
 from string import capitalize
-
-Builder.load_file('./vues/detail_cours_view.kv')
-
-Builder.load_string('''
-<CarouselSlide@BoxLayout>:
-    id:SV
-    allow_stretch: True
-    ScrollView:
-        id: sv
-        GridLayout:
-            height: max(self.minimum_height, sv.height)
-            do_scroll_x: False
-            padding: 1
-            spacing: 1
-            cols:2
-            size_hint: (1, None)
-            Label:
-                text: 'Durée'
-                size_hint: (.2, .3)
-                halign: 'left'
-                valign: 'middle'
-                text_size: self.size
-            BoxLayout:
-                size_hint: (.2, .6)
-                orientation: 'vertical'
-                Label:
-                    id: DUREE_STEP
-                    thefield: "DUREE_STEP"
-                    text: str(int(sli.value)) + " mn."
-                    color: (0, 1, 1, 1)
-                    halign: 'center'
-                    valign: 'top'
-                    text_size: self.size
-                Slider:
-                    id: sli
-                    range: (0, 20)
-                    step: 1
-                    value_track_width: 5
-                    cursor_size: ('25sp', '25sp')
-                    sensitivity: 'handle'
-                    on_touch_up: app.get_tps(sli)
-            Label:
-                text: 'Objectif'
-                size_hint_x: .3
-                halign: 'left'
-                valign: 'middle'
-                text_size: self.size
-            LFontInput:
-                thefield: "OBJ_STEP"
-            Label:
-                text: 'Moyen'
-                size_hint_x: .3
-                halign: 'left'
-                valign: 'middle'
-                text_size: self.size
-            LFontInput:
-                thefield: "MOYEN"
-            Label:
-                text: 'Consigne'
-                size_hint_x: .3
-                halign: 'left'
-                valign: 'middle'
-                text_size: self.size
-            LFontInput:
-                thefield: "CONSIGNE"
-            Label:
-                text: 'Observ.'
-                size_hint_x: .3
-                halign: 'left'
-                valign: 'middle'
-                text_size: self.size
-            LFontInput:
-                thefield: "OBSERV"
-
-<DurTot@Label>:
-    color: (1, 1 , 1, 1)
-    color: (0, 1, 1, 1)
-    font_size: '18sp'
-    halign: 'left'
-    valign: 'middle'
-    text_size: self.size
-
-<LFontInput@TextInput>:
-    font_size: '16sp'
-    write_tab: False
-    input_type: 'text'
-    multiline: True
-    focus: True
-    size_hint_y: .2
-''')
+from modeles.cours_steps import Cours_Steps
 
 try:
     Window.softinput_mode = 'below_target'
 except:
     pass
 
+
+Builder.load_file('./vues/detail_cours_view.kv')
+
+
 class CarouselSlide(BoxLayout):
     def build(self):
         return self
+    
+    def get_le_cours_details(self, instance):
+        return self.root.get_cours_data.COURS_STEP[self.index]
+
 
 class LFontInput(TextInput):
     def build(self):
@@ -129,20 +48,29 @@ class DurTot(Label):
     def build(self):
         return self
 
+class RightButton(Button):
+    def build(self):
+        self.first_time = True
+        return self
+
 class AddButton(Button):
-    def add_page(self, instance):
-        instance.add_widget(CarouselSlide(allow_stretch=True))
+    def add_page(self, instance, dcv):
+        dcv.le_cours.COURS_STEPS.insert(instance.index+1, Cours_Steps())
+        instance.add_widget(CarouselSlide(allow_stretch=True,))
         instance.load_next()
 
 class DelButton(Button):
-    pass
+    def del_page(self, instance, dcv):
+        del dcv.le_cours.COURS_STEPS[instance.index]
+        instance.remove_widget(instance.current_slide)
 
 class Detail_Cours_View(Screen):
     ##classe pour tester kivy
     def __init__(self, **kwargs):
         super(Detail_Cours_View, self).__init__(**kwargs)
-
+    
     def build(self):
+        self.duration=0
         global sq
         try:
             self.db=sq.connect("AIKIDB")
@@ -162,26 +90,12 @@ class Detail_Cours_View(Screen):
             print "Pas de base disponible"
             self.db = None
             self.fields = None
+        self.prepare()
 
     def get_car(self, thecar=0):
         i=[i for i in self.root.walk() if type(i) == Carousel]
         return i[thecar]
 
-    def get_tps(self, *args):
-        self.get_car(0)
-        tot=[]
-        wids=[]
-        theslides=self.get_car(1).slides[:]
-        for i in theslides:
-            for j in i.walk():
-                try:
-                    if type(j) == Slider and not j in wids:
-                        tot.append(j.value)
-                        wids.append(j)
-                except:
-                    pass
-        [i for i in self.get_car(0).walk()][11].text = str(int(sum(tot))) + " mn."
-        
     def summerize(self):
         ET=self.entete()
         DE=self.detail()
@@ -246,4 +160,9 @@ class Detail_Cours_View(Screen):
         instance.cut()
         instance.delete_selection()
         instance.text = ''
-        
+    
+    def get_cours_data(self):
+        self.app=App.get_running_app()
+        self.app.gestion_cours.load_cours()
+        le_cours=self.app.gestion_cours.liste_cours[0]
+        return le_cours
