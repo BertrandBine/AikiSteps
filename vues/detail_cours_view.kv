@@ -1,6 +1,7 @@
 #: kivy 1.9.1
 #:import Cours_Steps  modeles.cours_steps.Cours_Steps
 
+
 <Detail_Cours_View>:
     id: DCV
     le_cours: self.get_cours_data()
@@ -11,7 +12,10 @@
             size_hint: (1, .15)
             LeftButton:
                 size_hint: (.2,1)
-                on_release: car00.load_previous()
+                on_release: 
+                    car00.load_previous()
+                    DurTot.text = str(int(DCV.le_cours.get_duree())) +' mn.'
+                    DCV.le_cours.DUREE_GEN = DCV.le_cours.get_duree()
             Label:
                 text: 'Aïki Steps'
                 font_size: '18sp'
@@ -20,8 +24,12 @@
                 color: (0, 1, 1, 1)
             RightButton:
                 size_hint: (.2, 1)
-                on_release: car00.load_next()
-                
+                first_time: True
+                on_release: 
+                    car00.load_next()
+                    DurTot.text = str(int(DCV.le_cours.get_duree())) +' mn.'
+                    DCV.le_cours.DUREE_GEN = DCV.le_cours.get_duree()
+
         Carousel:
             id: car00
             orientation:'horizonal'
@@ -67,8 +75,9 @@
                         valign: 'middle'
                         text_size: self.size
                     DurTot:
+                        id: DurTot
                         thefield: "DUREE_GEN"
-                        text: str(int(DCV.le_cours.DUREE_GEN)) +' mn.'
+                        text: str(int(DCV.le_cours.get_duree())) +' mn.'
                         on_text: DCV.le_cours.DUREE_GEN = int(self.text.replace(" mn.",''))
                         
                     Label:
@@ -167,13 +176,14 @@
                     RightButton:
                         size_hint: (.2, 1)
                         on_release: car01.load_next()
-
+                        
                 Carousel:
                     id: car01
                     orientation: 'horizontal'
                     scroll_distance: '80sp'
                     details:DCV.le_cours.COURS_STEPS
                     CarouselSlide:
+                        details:car01.details[car01.index]
                     
                 BoxLayout:
                     orientation: 'horizontal'
@@ -181,11 +191,13 @@
                     AddButton:
                         id: add_button
                         text: 'Ajouter une page'
-                        on_release: self.add_page(car01, DCV)
+                        on_release: self.add_page(car01)
                     DelButton:
                         id: del_button
                         text: 'Supprimer la page'
-                        on_release: self.del_page(car01, DCV)
+                        on_release: 
+                            del car01.details[car01.index]
+                            car01.remove_widget(car01.current_slide)
             
             BoxLayout:
                 orientation: 'vertical'
@@ -198,10 +210,10 @@
                         orientation: 'horizontal'
                         Button:
                             text: 'Copier et RAZ'
-                            on_release: app.select_text(summerized)
+                            # on_release: app.select_text(summerized)
                         Button:
-                            text: 'Actualiser'
-                            on_release: summerized.text=app.summerize()
+                            # text: 'Actualiser'
+                            # on_release: summerized.text=app.summerize()
                 ScrollView:
                     id: sv
                     TextInput:
@@ -218,7 +230,6 @@
                         text: 'Sauvegarder cours'
                     Button:
                         text: 'Charger un cours'
-
 
 <CarouselSlide@BoxLayout>:
     id: sv
@@ -258,7 +269,12 @@
                     cursor_size: ('25sp', '25sp')
                     sensitivity: 'handle'
                     value: sv.details.DUREE_STEP
-                    on_touch_up: sv.details.DUREE_STEP = self.value
+                    on_touch_up: 
+                        sv.details.DUREE_STEP = self.value
+                        for i in root.parent.parent.details: print i.OBJ_STEP
+                        print '-'*10
+                        print sv.details.OBJ_STEP
+                        print '='*10
             Label:
                 text: 'Objectif'
                 size_hint_x: .3
